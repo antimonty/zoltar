@@ -371,7 +371,7 @@
 </div>
 
 <script>
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxk8nfh6lg5vYB99ohqDLORXvLt-Bumg99q9zhnhwE1MCGPzw8206uEoL6y7FwSJXgk/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwLTQA_rTlxdWbMhZQZpKqePiu2eFOZ1xSeSa0RutYssymYJTzTt5lXbF3Jd2YYUPO9/exec';
 
 let history = [];
 let currentGroup = null;
