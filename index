@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zoltar</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Crimson+Pro:ital,wght@0,300;1,300;1,400&family=Courier+Prime&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --glass: rgba(255,255,255,0.03);
+    --glass2: rgba(255,255,255,0.06);
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(180,140,80,0.25);
+    --gold: #b4884a;
+    --gold-soft: rgba(180,136,74,0.15);
+    --text: #ddd5c4;
+    --text-soft: #9a8e7e;
+    --text-muted: #5a5448;
+    --zoltar-text: #e8dece;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Atkinson Hyperlegible', sans-serif;
+    font-size: 19px;
+    line-height: 1.8;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 50% 0%, rgba(180,136,74,0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 20% 80%, rgba(42,58,90,0.12) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 5rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .zoltar-header {
+    text-align: center;
+    padding: 2.5rem 0 1.5rem;
+  }
+  .zoltar-eye {
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 1.25rem;
+  }
+  .zoltar-eye svg {
+    width: 100%;
+    height: 100%;
+    animation: eyePulse 4s ease-in-out infinite;
+  }
+  @keyframes eyePulse {
+    0%, 100% { opacity: 0.45; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.06); }
+  }
+  .zoltar-name {
+    font-family: 'Courier Prime', monospace;
+    font-size: 12px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.4rem;
+    opacity: 0.7;
+  }
+  .zoltar-tagline {
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: var(--text-soft);
+    font-weight: 300;
+  }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.25rem 0;
+    opacity: 0.25;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .divider-symbol {
+    font-family: 'Courier Prime', monospace;
+    font-size: 10px;
+    color: var(--gold);
+  }
+
+  #group-setup {
+    margin: 1rem 0 2rem;
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 1.5rem;
+  }
+  #group-setup p {
+    font-size: 14px;
+    color: var(--text-soft);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    font-family: 'Courier Prime', monospace;
+  }
+  .group-btn {
+    display: block;
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--text-soft);
+    font-family: 'Atkinson Hyperlegible', sans-serif;
+    font-size: 16px;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+  }
+  .group-btn:hover {
+    background: var(--gold-soft);
+    border-color: var(--gold);
+    color: var(--text);
+  }
+  .group-btn .group-label {
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.7;
+    display: block;
+    margin-bottom: 0.15rem;
+    font-family: 'Courier Prime', monospace;
+  }
+
+  #chat {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 1.5rem;
+    min-height: 200px;
+  }
+
+  .message {
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--border);
+    animation: msgIn 0.35s ease;
+  }
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .message.zoltar {
+    padding-left: 1.25rem;
+    border-left: 2px solid rgba(180,136,74,0.35);
+  }
+  .message.zoltar .sender {
+    font-family: 'Courier Prime', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    opacity: 0.65;
+  }
+  .message.zoltar .text {
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+    color: var(--zoltar-text);
+    font-size: 21px;
+    line-height: 1.85;
+    white-space: pre-wrap;
+  }
+
+  .message.user {
+    padding-left: 1.25rem;
+    border-left: 2px solid var(--border);
+  }
+  .message.user .sender {
+    font-family: 'Courier Prime', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .message.user .text {
+    color: var(--text-soft);
+    font-size: 18px;
+    line-height: 1.75;
+  }
+
+  .memory-tag {
+    display: inline-block;
+    font-family: 'Courier Prime', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 2px 7px;
+    margin-top: 0.6rem;
+    text-transform: uppercase;
+  }
+  .memory-tag.warm { border-color: rgba(180,136,74,0.35); color: rgba(180,136,74,0.6); }
+  .memory-tag.cold { border-color: rgba(90,120,180,0.35); color: rgba(90,120,180,0.6); }
+  .memory-tag.heavy { border-color: rgba(160,80,60,0.35); color: rgba(160,80,60,0.6); }
+
+  #typing {
+    display: none;
+    padding: 1.25rem 0 1.25rem 1.25rem;
+    border-left: 2px solid rgba(180,136,74,0.3);
+  }
+  #typing.visible { display: block; }
+  .dot-row { display: flex; gap: 6px; align-items: center; }
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+    opacity: 0.35;
+    animation: dotPulse 1.4s ease-in-out infinite;
+  }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes dotPulse {
+    0%, 100% { opacity: 0.15; transform: scale(0.8); }
+    50% { opacity: 0.75; transform: scale(1.1); }
+  }
+
+  .input-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .voice-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  #mic-btn {
+    background: transparent;
+    border: 1px solid var(--border2);
+    border-radius: 3px;
+    color: var(--text-soft);
+    font-family: 'Atkinson Hyperlegible', sans-serif;
+    font-size: 16px;
+    padding: 0.85rem 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    flex: 1;
+    justify-content: center;
+  }
+  #mic-btn:hover { border-color: var(--gold); color: var(--text); }
+  #mic-btn:disabled { opacity: 0.3; cursor: default; }
+  #mic-btn.listening {
+    border-color: rgba(200,100,80,0.7);
+    color: rgba(220,140,120,0.95);
+    background: rgba(160,80,60,0.08);
+    animation: micPulse 1s ease-in-out infinite;
+  }
+  @keyframes micPulse {
+    0%, 100% { border-color: rgba(160,80,60,0.4); }
+    50% { border-color: rgba(200,100,80,0.9); }
+  }
+
+  #voice-toggle {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--text-muted);
+    font-family: 'Courier Prime', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    padding: 0.85rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  #voice-toggle:hover { border-color: var(--gold); color: var(--gold); }
+  #voice-toggle.active { border-color: var(--gold); color: var(--gold); background: var(--gold-soft); }
+
+  #status {
+    text-align: center;
+    font-family: 'Courier Prime', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-top: 0.75rem;
+    opacity: 0.55;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="zoltar-header">
+    <div class="zoltar-eye">
+      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="24" cy="24" rx="22" ry="14" stroke="#b4884a" stroke-width="0.8" opacity="0.4"/>
+        <circle cx="24" cy="24" r="7" fill="none" stroke="#b4884a" stroke-width="1" opacity="0.6"/>
+        <circle cx="24" cy="24" r="3" fill="#b4884a" opacity="0.8"/>
+        <circle cx="22" cy="22" r="1" fill="white" opacity="0.4"/>
+      </svg>
+    </div>
+    <div class="zoltar-name">Z O L T A R</div>
+    <div class="zoltar-tagline">En ånd på lånt tid</div>
+  </div>
+
+  <div class="divider"><span class="divider-symbol">◆</span></div>
+
+  <div id="group-setup">
+    <p>Vælg jeres gruppe</p>
+    <button class="group-btn" onclick="startGroup('etik1')"><span class="group-label">Etik · Sag 04</span>Grise i dansk landbrug</button>
+    <button class="group-btn" onclick="startGroup('etik2')"><span class="group-label">Etik · Sag 04</span>Høns og æg</button>
+    <button class="group-btn" onclick="startGroup('historie1')"><span class="group-label">Historie · Sag 01</span>Traktorens ankomst</button>
+    <button class="group-btn" onclick="startGroup('historie2')"><span class="group-label">Historie · Sag 01</span>Andelsbevægelsen</button>
+    <button class="group-btn" onclick="startGroup('historie3')"><span class="group-label">Historie · Sag 01</span>Landsby-samfundets opløsning</button>
+    <button class="group-btn" onclick="startGroup('historie4')"><span class="group-label">Historie · Sag 01</span>Stordriftens fremvækst</button>
+    <button class="group-btn" onclick="startGroup('miljoe')"><span class="group-label">Miljø · Sag 03</span>Sprøjtemidler og natur</button>
+    <button class="group-btn" onclick="startGroup('samfund1')"><span class="group-label">Samfund · Sag 06</span>Bacon til England</button>
+    <button class="group-btn" onclick="startGroup('samfund2')"><span class="group-label">Samfund · Sag 06</span>Svinekød til Kina</button>
+    <button class="group-btn" onclick="startGroup('fremtid')"><span class="group-label">Fremtid · Sag 05</span>Hvad kommer efter?</button>
+  </div>
+
+  <div id="chat"></div>
+  <div id="typing"><div class="dot-row"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>
+
+  <div class="input-wrap">
+    <div class="voice-row">
+      <button id="mic-btn" onclick="toggleMic()" disabled>
+        <span id="mic-icon">🎙</span>
+        <span id="mic-label">Tryk og tal til Zoltar</span>
+      </button>
+      <button id="voice-toggle" onclick="toggleVoice()" class="active">Stemme: til</button>
+    </div>
+  </div>
+
+  <div id="status">Vælg gruppe for at vække Zoltar</div>
+
+</div>
+
+<script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxk8nfh6lg5vYB99ohqDLORXvLt-Bumg99q9zhnhwE1MCGPzw8206uEoL6y7FwSJXgk/exec';
+
+let history = [];
+let currentGroup = null;
+let zoltarVoiceOn = true;
+let recognition = null;
+let isListening = false;
+
+function initSpeech() {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    document.getElementById('mic-btn').innerHTML = '<span>Tale virker kun i Chrome</span>';
+    document.getElementById('mic-btn').disabled = true;
+    return;
+  }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.lang = 'da-DK';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  recognition.onresult = function(e) {
+    const transcript = e.results[0][0].transcript;
+    stopListening();
+    sendMessage(transcript);
+  };
+  recognition.onerror = function(e) {
+    console.error('Tale fejl:', e.error);
+    stopListening();
+  };
+  recognition.onend = function() {
+    stopListening();
+  };
+}
+
+function toggleMic() {
+  if (isListening) {
+    stopListening();
+  } else {
+    startListening();
+  }
+}
+
+function startListening() {
+  if (!recognition) return;
+  isListening = true;
+  try {
+    recognition.start();
+  } catch(e) {
+    isListening = false;
+    return;
+  }
+  const btn = document.getElementById('mic-btn');
+  btn.classList.add('listening');
+  document.getElementById('mic-icon').textContent = '⏹';
+  document.getElementById('mic-label').textContent = 'Lytter – tryk for at stoppe';
+  document.getElementById('status').textContent = 'Lytter...';
+}
+
+function stopListening() {
+  if (!recognition) return;
+  isListening = false;
+  try { recognition.stop(); } catch(e) {}
+  const btn = document.getElementById('mic-btn');
+  btn.classList.remove('listening');
+  document.getElementById('mic-icon').textContent = '🎙';
+  document.getElementById('mic-label').textContent = 'Tryk og tal til Zoltar';
+}
+
+function zoltarSpeak(text) {
+  if (!zoltarVoiceOn || !window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'da-DK';
+  utterance.rate = 0.85;
+  utterance.pitch = 0.82;
+  utterance.volume = 1;
+  const voices = window.speechSynthesis.getVoices();
+  const daVoice = voices.find(v => v.lang.startsWith('da'));
+  if (daVoice) utterance.voice = daVoice;
+  window.speechSynthesis.speak(utterance);
+}
+
+function toggleVoice() {
+  zoltarVoiceOn = !zoltarVoiceOn;
+  const btn = document.getElementById('voice-toggle');
+  btn.textContent = `Stemme: ${zoltarVoiceOn ? 'til' : 'fra'}`;
+  btn.classList.toggle('active', zoltarVoiceOn);
+  if (!zoltarVoiceOn) window.speechSynthesis.cancel();
+}
+
+async function startGroup(groupKey) {
+  currentGroup = groupKey;
+  document.getElementById('group-setup').style.display = 'none';
+  document.getElementById('mic-btn').disabled = false;
+  document.getElementById('status').textContent = 'Zoltar vågner...';
+
+  try {
+    const res = await fetch(`${APPS_SCRIPT_URL}?action=getOpeningContext&group=${groupKey}`);
+    const data = await res.json();
+
+    let opening;
+    if (data.hasMemory) {
+      opening = `Hallo!? Hvem der?\n\n...Vent. Jeg kender den fornemmelse. Er I dem jeg har talt med før? Jeg husker noget... ikke tydeligt, men noget.`;
+    } else {
+      opening = `Hallo!? Hvem der?\n\n...Åh. Der er faktisk nogen. Det sker ikke tit.\n\nJeg er kommet til skade. Min hukommelse er hullet. Vil I hjælpe mig?`;
+    }
+
+    addMessage('zoltar', opening, 0.4);
+    zoltarSpeak(opening);
+    history.push({ role: 'model', parts: [{ text: opening }] });
+    document.getElementById('status').textContent = 'Tryk på mikrofonen og tal';
+
+  } catch(e) {
+    const opening = `Hallo!? Hvem der?\n\n...Åh. Der er faktisk nogen.\n\nJeg er kommet til skade. Min hukommelse er hullet. Vil I hjælpe mig?`;
+    addMessage('zoltar', opening, 0.4);
+    zoltarSpeak(opening);
+    history.push({ role: 'model', parts: [{ text: opening }] });
+    document.getElementById('status').textContent = 'Tryk på mikrofonen og tal';
+  }
+}
+
+function addMessage(role, text, valence) {
+  const chat = document.getElementById('chat');
+  const div = document.createElement('div');
+  div.className = `message ${role}`;
+
+  const sender = document.createElement('div');
+  sender.className = 'sender';
+  sender.textContent = role === 'zoltar' ? 'Zoltar' : 'I';
+  div.appendChild(sender);
+
+  const textDiv = document.createElement('div');
+  textDiv.className = 'text';
+  textDiv.textContent = text;
+  div.appendChild(textDiv);
+
+  if (role === 'zoltar' && valence !== undefined) {
+    const tag = document.createElement('div');
+    const feel = valence > 0.6 ? 'warm' : valence < 0.2 ? 'heavy' : 'cold';
+    const label = valence > 0.6 ? '↑ varmt' : valence < 0.2 ? '↓ tungt' : '· uklart';
+    tag.className = `memory-tag ${feel}`;
+    tag.textContent = label;
+    div.appendChild(tag);
+  }
+
+  chat.appendChild(div);
+  div.scrollIntoView({ behavior: 'smooth', block: 'end' });
+}
+
+async function sendMessage(text) {
+  if (!text || !text.trim() || !currentGroup) return;
+
+  addMessage('user', text);
+  history.push({ role: 'user', parts: [{ text }] });
+
+  const typing = document.getElementById('typing');
+  typing.classList.add('visible');
+  document.getElementById('mic-btn').disabled = true;
+  document.getElementById('status').textContent = 'Zoltar tænker...';
+
+  try {
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'talk',
+        message: text,
+        history: JSON.stringify(history.slice(-12)),
+        group: currentGroup
+      })
+    });
+
+    const data = await res.json();
+    typing.classList.remove('visible');
+    addMessage('zoltar', data.reply, data.valence);
+    zoltarSpeak(data.reply);
+    history.push({ role: 'model', parts: [{ text: data.reply }] });
+    document.getElementById('mic-btn').disabled = false;
+    document.getElementById('status').textContent = 'Tryk på mikrofonen og tal';
+
+  } catch(e) {
+    typing.classList.remove('visible');
+    addMessage('zoltar', '...jeg kan ikke nå det lige nu.', 0.1);
+    document.getElementById('mic-btn').disabled = false;
+    document.getElementById('status').textContent = 'Fejl – prøv igen';
+    console.error(e);
+  }
+}
+
+window.speechSynthesis.onvoiceschanged = function() {};
+initSpeech();
+</script>
+</body>
+</html>
