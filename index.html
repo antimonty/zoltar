@@ -11,7 +11,6 @@
     --bg: #050508;
     --gold: #b4884a;
     --gold-soft: rgba(180,136,74,0.12);
-    --gold-glow: rgba(180,136,74,0.25);
     --text: #e8dece;
     --text-soft: #9a8e7e;
     --text-muted: #5a5448;
@@ -38,7 +37,6 @@
     pointer-events: none;
   }
 
-  /* ── GRUPPEVÆLGER ── */
   #group-screen {
     position: fixed;
     inset: 0;
@@ -49,6 +47,7 @@
     justify-content: center;
     padding: 2rem;
     z-index: 100;
+    overflow-y: auto;
   }
 
   .group-title {
@@ -98,21 +97,40 @@
     opacity: 0.6;
   }
 
-  /* ── HOVED-APP ── */
   #app {
     display: none;
     flex-direction: column;
     align-items: center;
     width: 100%;
     max-width: 680px;
-    padding: 2rem 1.5rem 8rem;
+    padding: 2rem 1.5rem 9rem;
     min-height: 100vh;
   }
 
-  /* ── ØJE ── */
+  .z-name {
+    font-family: 'Courier Prime', monospace;
+    font-size: 11px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.55;
+    margin-bottom: 0.2rem;
+    margin-top: 1rem;
+  }
+  .z-tag {
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+  }
+
   .eye-wrap {
-    margin: 2rem 0 1.5rem;
-    position: relative;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
   }
 
   #eye-btn {
@@ -146,7 +164,7 @@
   }
   #eye-btn.listening {
     border-color: #fff;
-    box-shadow: 0 0 40px rgba(255,255,255,0.3), 0 0 80px rgba(180,136,74,0.2);
+    box-shadow: 0 0 40px rgba(255,255,255,0.25), 0 0 80px rgba(180,136,74,0.15);
     animation: eyeBreath 1.2s ease-in-out infinite;
   }
   #eye-btn.listening #eye-pupil {
@@ -155,8 +173,6 @@
     opacity: 1;
   }
   #eye-btn.thinking {
-    border-color: var(--gold);
-    box-shadow: 0 0 30px rgba(180,136,74,0.3);
     animation: eyeThink 2s ease-in-out infinite;
   }
   @keyframes eyeBreath {
@@ -164,8 +180,8 @@
     50% { transform: scale(1.05); }
   }
   @keyframes eyeThink {
-    0%, 100% { box-shadow: 0 0 20px rgba(180,136,74,0.2); }
-    50% { box-shadow: 0 0 40px rgba(180,136,74,0.4); }
+    0%, 100% { box-shadow: 0 0 20px rgba(180,136,74,0.15); }
+    50% { box-shadow: 0 0 45px rgba(180,136,74,0.4); }
   }
 
   .eye-label {
@@ -174,40 +190,18 @@
     letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--text-muted);
-    margin-top: 0.75rem;
     text-align: center;
   }
 
-  /* ── ZOLTAR NAVN ── */
-  .z-name {
-    font-family: 'Courier Prime', monospace;
-    font-size: 11px;
-    letter-spacing: 0.35em;
-    text-transform: uppercase;
-    color: var(--gold);
-    opacity: 0.55;
-    margin-bottom: 0.2rem;
-  }
-  .z-tag {
-    font-family: 'Crimson Pro', serif;
-    font-style: italic;
-    font-size: 14px;
-    color: var(--text-muted);
-    margin-bottom: 2rem;
-  }
-
-  /* ── CHAT ── */
   #chat {
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 0;
-    margin-bottom: 1rem;
   }
 
   .msg {
     padding: 1rem 0;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
     animation: msgIn 0.3s ease;
   }
   @keyframes msgIn {
@@ -239,7 +233,7 @@
 
   .msg.user {
     padding-left: 1rem;
-    border-left: 2px solid rgba(255,255,255,0.06);
+    border-left: 2px solid rgba(255,255,255,0.05);
   }
   .msg.user .who {
     font-family: 'Courier Prime', monospace;
@@ -270,14 +264,13 @@
   .mem-tag.u { border-color: rgba(90,120,180,0.3); color: rgba(90,120,180,0.5); }
   .mem-tag.t { border-color: rgba(160,80,60,0.3); color: rgba(160,80,60,0.5); }
 
-  /* ── INPUT ── */
   #input-bar {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
     background: linear-gradient(transparent, var(--bg) 30%);
-    padding: 1.5rem 1rem 1.5rem;
+    padding: 1.5rem 1rem;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -324,7 +317,6 @@
     transition: all 0.2s;
     text-transform: uppercase;
     white-space: nowrap;
-    align-self: flex-end;
     height: 52px;
   }
   #send-btn:hover { background: var(--gold-soft); }
@@ -342,7 +334,6 @@
 </head>
 <body>
 
-<!-- GRUPPEVÆLGER -->
 <div id="group-screen">
   <div class="group-title">Vælg jeres gruppe</div>
   <div class="group-grid">
@@ -359,7 +350,6 @@
   </div>
 </div>
 
-<!-- APP -->
 <div id="app">
   <div class="z-name">Z O L T A R</div>
   <div class="z-tag">En ånd på lånt tid</div>
@@ -387,26 +377,23 @@
 </div>
 
 <script>
-const BACKEND = 'https://script.google.com/macros/s/AKfycbz28GrKsmz1fiY6wTxWgNS45EJfEJh9yQb6EVgV4n8venOnBb7o6IOA8gINS1czNeOu/exec';
+const BACKEND = 'https://script.google.com/macros/s/AKfycbxk8nfh6lg5vYB99ohqDLORXvLt-Bumg99q9zhnhwE1MCGPzw8206uEoL6y7FwSJXgk/exec';
 
 let history = [];
 let currentGroup = null;
 let recognition = null;
 let isListening = false;
-let zoltarVoiceOn = true;
 
-// ── TALE ──
 function initSpeech() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) {
-    document.getElementById('eye-label').textContent = 'Tale ikke tilgængelig';
+    document.getElementById('eye-label').textContent = 'Tale kun i Chrome';
     return;
   }
   recognition = new SR();
   recognition.lang = 'da-DK';
   recognition.continuous = false;
   recognition.interimResults = false;
-
   recognition.onresult = function(e) {
     const text = e.results[0][0].transcript;
     stopListening();
@@ -418,8 +405,7 @@ function initSpeech() {
 
 function toggleMic() {
   if (!currentGroup) return;
-  if (isListening) { stopListening(); return; }
-  startListening();
+  isListening ? stopListening() : startListening();
 }
 
 function startListening() {
@@ -454,7 +440,6 @@ function zoltarSpeak(text) {
   window.speechSynthesis.speak(u);
 }
 
-// ── GRUPPE ──
 async function startGroup(groupKey) {
   currentGroup = groupKey;
   document.getElementById('group-screen').style.display = 'none';
@@ -462,16 +447,7 @@ async function startGroup(groupKey) {
   document.getElementById('status').textContent = 'Zoltar vågner...';
   document.getElementById('eye-btn').classList.add('thinking');
 
-  let opening;
-  try {
-    const res = await fetch(`${BACKEND}?action=getOpeningContext&group=${groupKey}`);
-    const data = await res.json();
-    opening = data.hasMemory
-      ? 'Hallo!? Hvem der?\n\n...Vent. Jeg kender den fornemmelse. Er I dem jeg har talt med før? Jeg husker noget... ikke tydeligt, men noget.'
-      : 'Hallo!? Hvem der?\n\n...Åh. Der er faktisk nogen. Det sker ikke tit.\n\nJeg er kommet til skade. Min hukommelse er hullet. Vil I hjælpe mig?';
-  } catch(e) {
-    opening = 'Hallo!? Hvem der?\n\n...Åh. Der er faktisk nogen.\n\nJeg er kommet til skade. Min hukommelse er hullet. Vil I hjælpe mig?';
-  }
+  const opening = 'Hallo!? Er der nogen?';
 
   document.getElementById('eye-btn').classList.remove('thinking');
   addMsg('zoltar', opening, 'u');
@@ -482,7 +458,6 @@ async function startGroup(groupKey) {
   document.getElementById('status').textContent = 'Tryk øjet for at tale · eller skriv';
 }
 
-// ── BESKEDER ──
 function addMsg(role, text, feel) {
   const chat = document.getElementById('chat');
   const div = document.createElement('div');
@@ -509,7 +484,6 @@ function addMsg(role, text, feel) {
   div.scrollIntoView({ behavior: 'smooth', block: 'end' });
 }
 
-// ── SEND ──
 function sendText() {
   const input = document.getElementById('user-input');
   const text = input.value.trim();
@@ -552,6 +526,7 @@ async function sendMessage(text) {
   } catch(e) {
     document.getElementById('eye-btn').classList.remove('thinking');
     addMsg('zoltar', '...jeg kan ikke nå det lige nu.', 't');
+    console.error(e);
   }
 
   document.getElementById('send-btn').disabled = false;
@@ -559,18 +534,15 @@ async function sendMessage(text) {
   document.getElementById('status').textContent = 'Tryk øjet for at tale · eller skriv';
 }
 
-// ── PASTE BLOKERING ──
 document.getElementById('user-input').addEventListener('paste', function(e) {
   e.preventDefault();
 });
 
-// ── AUTO-RESIZE ──
 document.getElementById('user-input').addEventListener('input', function() {
   this.style.height = 'auto';
   this.style.height = Math.min(this.scrollHeight, 140) + 'px';
 });
 
-// ── INIT ──
 window.speechSynthesis.onvoiceschanged = function() {};
 initSpeech();
 </script>
