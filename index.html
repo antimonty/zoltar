@@ -1,85 +1,578 @@
 <!DOCTYPE html>
 <html lang="da">
 <head>
-    <meta charset="UTF-8">
-    <title>Zoltar - Den Forvitrede Ånd</title>
-    <style>
-        body { background: #050508; color: #b4884a; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
-        #eye-container { width: 120px; height: 120px; border-radius: 50%; border: 2px solid #b4884a; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.5s; box-shadow: 0 0 20px rgba(180,136,74,0.2); }
-        #eye-pupil { width: 30px; height: 30px; background: #b4884a; border-radius: 50%; }
-        .listening #eye-container { border-color: #fff; box-shadow: 0 0 40px #fff; }
-        .listening #eye-pupil { background: #fff; transform: scale(1.3); }
-        #text-display { margin-top: 30px; font-size: 20px; color: #e8dece; max-width: 80%; min-height: 50px; font-style: italic; line-height: 1.6; }
-        #status { margin-top: 15px; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; opacity: 0.5; }
-        .key-input { background: #111; border: 1px solid #333; color: #555; padding: 5px; font-size: 10px; margin-bottom: 20px; border-radius: 4px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zoltar</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Crimson+Pro:ital,wght@1,300;1,400&family=Courier+Prime&display=swap');
+
+  :root {
+    --bg: #050508;
+    --gold: #b4884a;
+    --gold-soft: rgba(180,136,74,0.12);
+    --gold-glow: rgba(180,136,74,0.25);
+    --text: #e8dece;
+    --text-soft: #9a8e7e;
+    --text-muted: #5a5448;
+    --border: rgba(180,136,74,0.2);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Atkinson Hyperlegible', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse 50% 50% at 50% 0%, rgba(180,136,74,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* ── GRUPPEVÆLGER ── */
+  #group-screen {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    z-index: 100;
+  }
+
+  .group-title {
+    font-family: 'Courier Prime', monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.6;
+    margin-bottom: 2rem;
+  }
+
+  .group-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    width: 100%;
+    max-width: 480px;
+  }
+
+  .group-btn {
+    background: transparent;
+    border: 1px solid rgba(180,136,74,0.2);
+    border-radius: 3px;
+    color: var(--text-soft);
+    font-family: 'Atkinson Hyperlegible', sans-serif;
+    font-size: 15px;
+    padding: 0.7rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+  .group-btn:hover {
+    background: var(--gold-soft);
+    border-color: var(--gold);
+    color: var(--text);
+  }
+  .group-btn .gl {
+    font-family: 'Courier Prime', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.6;
+  }
+
+  /* ── HOVED-APP ── */
+  #app {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 680px;
+    padding: 2rem 1.5rem 8rem;
+    min-height: 100vh;
+  }
+
+  /* ── ØJE ── */
+  .eye-wrap {
+    margin: 2rem 0 1.5rem;
+    position: relative;
+  }
+
+  #eye-btn {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 1.5px solid var(--gold);
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s;
+    box-shadow: 0 0 20px rgba(180,136,74,0.15);
+    position: relative;
+  }
+  #eye-btn::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border-radius: 50%;
+    border: 1px solid rgba(180,136,74,0.3);
+  }
+  #eye-pupil {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--gold);
+    transition: all 0.3s;
+    opacity: 0.85;
+  }
+  #eye-btn.listening {
+    border-color: #fff;
+    box-shadow: 0 0 40px rgba(255,255,255,0.3), 0 0 80px rgba(180,136,74,0.2);
+    animation: eyeBreath 1.2s ease-in-out infinite;
+  }
+  #eye-btn.listening #eye-pupil {
+    background: #fff;
+    transform: scale(1.4);
+    opacity: 1;
+  }
+  #eye-btn.thinking {
+    border-color: var(--gold);
+    box-shadow: 0 0 30px rgba(180,136,74,0.3);
+    animation: eyeThink 2s ease-in-out infinite;
+  }
+  @keyframes eyeBreath {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  @keyframes eyeThink {
+    0%, 100% { box-shadow: 0 0 20px rgba(180,136,74,0.2); }
+    50% { box-shadow: 0 0 40px rgba(180,136,74,0.4); }
+  }
+
+  .eye-label {
+    font-family: 'Courier Prime', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 0.75rem;
+    text-align: center;
+  }
+
+  /* ── ZOLTAR NAVN ── */
+  .z-name {
+    font-family: 'Courier Prime', monospace;
+    font-size: 11px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.55;
+    margin-bottom: 0.2rem;
+  }
+  .z-tag {
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+  }
+
+  /* ── CHAT ── */
+  #chat {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 1rem;
+  }
+
+  .msg {
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    animation: msgIn 0.3s ease;
+  }
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg.zoltar {
+    padding-left: 1rem;
+    border-left: 2px solid rgba(180,136,74,0.3);
+  }
+  .msg.zoltar .who {
+    font-family: 'Courier Prime', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+    opacity: 0.6;
+  }
+  .msg.zoltar .txt {
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+    font-size: 20px;
+    line-height: 1.8;
+    color: var(--text);
+    white-space: pre-wrap;
+  }
+
+  .msg.user {
+    padding-left: 1rem;
+    border-left: 2px solid rgba(255,255,255,0.06);
+  }
+  .msg.user .who {
+    font-family: 'Courier Prime', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+  .msg.user .txt {
+    font-size: 17px;
+    color: var(--text-soft);
+    line-height: 1.7;
+  }
+
+  .mem-tag {
+    display: inline-block;
+    font-family: 'Courier Prime', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    padding: 1px 6px;
+    border-radius: 2px;
+    margin-top: 0.5rem;
+    text-transform: uppercase;
+    border: 1px solid;
+  }
+  .mem-tag.v { border-color: rgba(180,136,74,0.3); color: rgba(180,136,74,0.5); }
+  .mem-tag.u { border-color: rgba(90,120,180,0.3); color: rgba(90,120,180,0.5); }
+  .mem-tag.t { border-color: rgba(160,80,60,0.3); color: rgba(160,80,60,0.5); }
+
+  /* ── INPUT ── */
+  #input-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, var(--bg) 30%);
+    padding: 1.5rem 1rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 680px;
+  }
+
+  #user-input {
+    flex: 1;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--text);
+    font-family: 'Atkinson Hyperlegible', sans-serif;
+    font-size: 17px;
+    line-height: 1.6;
+    padding: 0.75rem 1rem;
+    resize: none;
+    outline: none;
+    min-height: 52px;
+    max-height: 140px;
+    transition: border-color 0.2s;
+  }
+  #user-input:focus { border-color: rgba(180,136,74,0.4); }
+  #user-input::placeholder { color: var(--text-muted); font-style: italic; font-size: 15px; }
+  #user-input:disabled { opacity: 0.4; }
+
+  #send-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--gold);
+    font-family: 'Courier Prime', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    padding: 0 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    white-space: nowrap;
+    align-self: flex-end;
+    height: 52px;
+  }
+  #send-btn:hover { background: var(--gold-soft); }
+  #send-btn:disabled { opacity: 0.3; cursor: default; }
+
+  #status {
+    font-family: 'Courier Prime', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    opacity: 0.5;
+  }
+</style>
 </head>
 <body>
 
-    <input type="password" id="api-key" class="key-input" placeholder="Indtast API Nøgle her...">
+<!-- GRUPPEVÆLGER -->
+<div id="group-screen">
+  <div class="group-title">Vælg jeres gruppe</div>
+  <div class="group-grid">
+    <button class="group-btn" onclick="startGroup('etik1')"><span class="gl">Etik · Sag 04</span>Grise i dansk landbrug</button>
+    <button class="group-btn" onclick="startGroup('etik2')"><span class="gl">Etik · Sag 04</span>Høns og æg</button>
+    <button class="group-btn" onclick="startGroup('historie1')"><span class="gl">Historie · Sag 01</span>Traktorens ankomst</button>
+    <button class="group-btn" onclick="startGroup('historie2')"><span class="gl">Historie · Sag 01</span>Andelsbevægelsen</button>
+    <button class="group-btn" onclick="startGroup('historie3')"><span class="gl">Historie · Sag 01</span>Landsby-samfundets opløsning</button>
+    <button class="group-btn" onclick="startGroup('historie4')"><span class="gl">Historie · Sag 01</span>Stordriftens fremvækst</button>
+    <button class="group-btn" onclick="startGroup('miljoe')"><span class="gl">Miljø · Sag 03</span>Sprøjtemidler og natur</button>
+    <button class="group-btn" onclick="startGroup('samfund1')"><span class="gl">Samfund · Sag 06</span>Bacon til England</button>
+    <button class="group-btn" onclick="startGroup('samfund2')"><span class="gl">Samfund · Sag 06</span>Svinekød til Kina</button>
+    <button class="group-btn" onclick="startGroup('fremtid')"><span class="gl">Fremtid · Sag 05</span>Hvad kommer efter?</button>
+  </div>
+</div>
 
-    <div id="eye-container" onclick="toggleMic()">
-        <div id="eye-pupil"></div>
+<!-- APP -->
+<div id="app">
+  <div class="z-name">Z O L T A R</div>
+  <div class="z-tag">En ånd på lånt tid</div>
+
+  <div class="eye-wrap">
+    <button id="eye-btn" onclick="toggleMic()" title="Tryk og tal">
+      <div id="eye-pupil"></div>
+    </button>
+    <div class="eye-label" id="eye-label">Tryk for at tale</div>
+  </div>
+
+  <div id="chat"></div>
+
+  <div id="input-bar">
+    <div class="input-row">
+      <textarea id="user-input"
+        placeholder="Skriv til Zoltar..."
+        rows="1"
+        disabled
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendText()}"></textarea>
+      <button id="send-btn" onclick="sendText()" disabled>Send</button>
     </div>
-
-    <div id="text-display">Zoltar sover... rør ved øjet for at vække ham.</div>
-    <div id="status">Klik for at tale</div>
+    <div id="status">Vælg gruppe</div>
+  </div>
+</div>
 
 <script>
-    let history = [];
-    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = 'da-DK';
+const BACKEND = 'https://script.google.com/macros/s/AKfycbxk8nfh6lg5vYB99ohqDLORXvLt-Bumg99q9zhnhwE1MCGPzw8206uEoL6y7FwSJXgk/exec';
 
-    function speak(text) {
-        window.speechSynthesis.cancel(); // Stop tidligere tale
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'da-DK';
-        utterance.pitch = 0.6;
-        utterance.rate = 0.9;
-        window.speechSynthesis.speak(utterance);
-        document.getElementById('text-display').textContent = text;
-    }
+let history = [];
+let currentGroup = null;
+let recognition = null;
+let isListening = false;
+let zoltarVoiceOn = true;
 
-    function toggleMic() {
-        const key = document.getElementById('api-key').value;
-        if (!key) { alert("Husk at indtaste din Gemini API nøgle øverst!"); return; }
-        
-        try {
-            recognition.start();
-            document.body.classList.add('listening');
-            document.getElementById('status').textContent = "Zoltar lytter til dig...";
-        } catch(e) {}
-    }
+// ── TALE ──
+function initSpeech() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    document.getElementById('eye-label').textContent = 'Tale ikke tilgængelig';
+    return;
+  }
+  recognition = new SR();
+  recognition.lang = 'da-DK';
+  recognition.continuous = false;
+  recognition.interimResults = false;
 
-    recognition.onresult = async (event) => {
-        document.body.classList.remove('listening');
-        const userSpeech = event.results[0][0].transcript;
-        document.getElementById('status').textContent = "Zoltar tænker...";
+  recognition.onresult = function(e) {
+    const text = e.results[0][0].transcript;
+    stopListening();
+    sendMessage(text);
+  };
+  recognition.onerror = function() { stopListening(); };
+  recognition.onend = function() { stopListening(); };
+}
 
-        const apiKey = document.getElementById('api-key').value;
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [...history, { role: "user", parts: [{ text: userSpeech }] }],
-                system_instruction: { parts: [{ text: "Du er ånden Zoltar. Du er venlig og hjælpeløs. Din hukommelse er forvitret. Du ved intet om landbrug, men har brug for elevernes hjælp. Svar kort (max 2 sætninger) på dansk. Vær taknemmelig og stil spørgsmål." }] }
-            })
-        });
+function toggleMic() {
+  if (!currentGroup) return;
+  if (isListening) { stopListening(); return; }
+  startListening();
+}
 
-        const data = await response.json();
-        const reply = data.candidates[0].content.parts[0].text;
-        
-        history.push({ role: "user", parts: [{ text: userSpeech }] });
-        history.push({ role: "model", parts: [{ text: reply }] });
-        
-        speak(reply);
-        document.getElementById('status').textContent = "Tryk på øjet for at svare";
-    };
+function startListening() {
+  if (!recognition) return;
+  try {
+    recognition.start();
+    isListening = true;
+    document.getElementById('eye-btn').classList.add('listening');
+    document.getElementById('eye-label').textContent = 'Lytter...';
+    document.getElementById('status').textContent = 'Lytter';
+  } catch(e) {}
+}
 
-    recognition.onerror = () => {
-        document.body.classList.remove('listening');
-        document.getElementById('status').textContent = "Jeg hørte intet... prøv igen.";
-    };
+function stopListening() {
+  if (!recognition) return;
+  isListening = false;
+  try { recognition.stop(); } catch(e) {}
+  document.getElementById('eye-btn').classList.remove('listening');
+  document.getElementById('eye-label').textContent = 'Tryk for at tale';
+}
+
+function zoltarSpeak(text) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'da-DK';
+  u.rate = 0.87;
+  u.pitch = 0.8;
+  const voices = window.speechSynthesis.getVoices();
+  const da = voices.find(v => v.lang.startsWith('da'));
+  if (da) u.voice = da;
+  window.speechSynthesis.speak(u);
+}
+
+// ── GRUPPE ──
+async function startGroup(groupKey) {
+  currentGroup = groupKey;
+  document.getElementById('group-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('status').textContent = 'Zoltar vågner...';
+  document.getElementById('eye-btn').classList.add('thinking');
+
+  let opening;
+  try {
+    const res = await fetch(`${BACKEND}?action=getOpeningContext&group=${groupKey}`);
+    const data = await res.json();
+    opening = data.hasMemory
+      ? 'Hallo!? Hvem der?\n\n...Vent. Jeg kender den fornemmelse. Er I dem jeg har talt med før? Jeg husker noget... ikke tydeligt, men noget.'
+      : 'Hallo!? Hvem der?\n\n...Åh. Der er faktisk nogen. Det sker ikke tit.\n\nJeg er kommet til skade. Min hukommelse er hullet. Vil I hjælpe mig?';
+  } catch(e) {
+    opening = 'Hallo!? Hvem der?\n\n...Åh. Der er faktisk nogen.\n\nJeg er kommet til skade. Min hukommelse er hullet. Vil I hjælpe mig?';
+  }
+
+  document.getElementById('eye-btn').classList.remove('thinking');
+  addMsg('zoltar', opening, 'u');
+  zoltarSpeak(opening);
+  history.push({ role: 'model', parts: [{ text: opening }] });
+  document.getElementById('user-input').disabled = false;
+  document.getElementById('send-btn').disabled = false;
+  document.getElementById('status').textContent = 'Tryk øjet for at tale · eller skriv';
+}
+
+// ── BESKEDER ──
+function addMsg(role, text, feel) {
+  const chat = document.getElementById('chat');
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+
+  const who = document.createElement('div');
+  who.className = 'who';
+  who.textContent = role === 'zoltar' ? 'Zoltar' : 'I';
+  div.appendChild(who);
+
+  const txt = document.createElement('div');
+  txt.className = 'txt';
+  txt.textContent = text;
+  div.appendChild(txt);
+
+  if (role === 'zoltar' && feel) {
+    const tag = document.createElement('div');
+    tag.className = `mem-tag ${feel}`;
+    tag.textContent = feel === 'v' ? '↑ varmt' : feel === 't' ? '↓ tungt' : '· uklart';
+    div.appendChild(tag);
+  }
+
+  chat.appendChild(div);
+  div.scrollIntoView({ behavior: 'smooth', block: 'end' });
+}
+
+// ── SEND ──
+function sendText() {
+  const input = document.getElementById('user-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  input.style.height = 'auto';
+  sendMessage(text);
+}
+
+async function sendMessage(text) {
+  if (!text || !currentGroup) return;
+
+  addMsg('user', text);
+  history.push({ role: 'user', parts: [{ text }] });
+
+  document.getElementById('eye-btn').classList.add('thinking');
+  document.getElementById('send-btn').disabled = true;
+  document.getElementById('user-input').disabled = true;
+  document.getElementById('status').textContent = 'Zoltar tænker...';
+
+  try {
+    const res = await fetch(BACKEND, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'talk',
+        message: text,
+        history: JSON.stringify(history.slice(-12)),
+        group: currentGroup
+      })
+    });
+
+    const data = await res.json();
+    document.getElementById('eye-btn').classList.remove('thinking');
+
+    const feel = data.valence > 0.6 ? 'v' : data.valence < 0.2 ? 't' : 'u';
+    addMsg('zoltar', data.reply, feel);
+    zoltarSpeak(data.reply);
+    history.push({ role: 'model', parts: [{ text: data.reply }] });
+
+  } catch(e) {
+    document.getElementById('eye-btn').classList.remove('thinking');
+    addMsg('zoltar', '...jeg kan ikke nå det lige nu.', 't');
+  }
+
+  document.getElementById('send-btn').disabled = false;
+  document.getElementById('user-input').disabled = false;
+  document.getElementById('status').textContent = 'Tryk øjet for at tale · eller skriv';
+}
+
+// ── PASTE BLOKERING ──
+document.getElementById('user-input').addEventListener('paste', function(e) {
+  e.preventDefault();
+});
+
+// ── AUTO-RESIZE ──
+document.getElementById('user-input').addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 140) + 'px';
+});
+
+// ── INIT ──
+window.speechSynthesis.onvoiceschanged = function() {};
+initSpeech();
 </script>
 </body>
 </html>
