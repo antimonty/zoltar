@@ -1,550 +1,323 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="da">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Zoltar</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>Lyspult Bagscenen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=IBM+Plex+Mono:wght@500&display=swap">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Crimson+Pro:ital,wght@1,300;1,400&family=Courier+Prime&display=swap');
-
-  :root {
-    --bg: #050508;
-    --gold: #b4884a;
-    --gold-soft: rgba(180,136,74,0.12);
-    --text: #e8dece;
-    --text-soft: #9a8e7e;
-    --text-muted: #5a5448;
-    --border: rgba(180,136,74,0.2);
-  }
-
-  * { margin:0; padding:0; box-sizing:border-box; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Atkinson Hyperlegible', sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: radial-gradient(ellipse 50% 50% at 50% 0%, rgba(180,136,74,0.07) 0%, transparent 70%);
-    pointer-events: none;
-  }
-
-  #group-screen {
-    position: fixed;
-    inset: 0;
-    background: var(--bg);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-    z-index: 100;
-    overflow-y: auto;
-  }
-
-  .group-title {
-    font-family: 'Courier Prime', monospace;
-    font-size: 11px;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    color: var(--gold);
-    opacity: 0.6;
-    margin-bottom: 2rem;
-  }
-
-  .group-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    width: 100%;
-    max-width: 480px;
-  }
-
-  .group-btn {
-    background: transparent;
-    border: 1px solid rgba(180,136,74,0.2);
-    border-radius: 3px;
-    color: var(--text-soft);
-    font-family: 'Atkinson Hyperlegible', sans-serif;
-    font-size: 15px;
-    padding: 0.7rem 1rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: left;
-    display: flex;
-    flex-direction: column;
-    gap: 0.1rem;
-  }
-  .group-btn:hover {
-    background: var(--gold-soft);
-    border-color: var(--gold);
-    color: var(--text);
-  }
-  .group-btn .gl {
-    font-family: 'Courier Prime', monospace;
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--gold);
-    opacity: 0.6;
-  }
-
-  #app {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    max-width: 680px;
-    padding: 2rem 1.5rem 9rem;
-    min-height: 100vh;
-  }
-
-  .z-name {
-    font-family: 'Courier Prime', monospace;
-    font-size: 11px;
-    letter-spacing: 0.35em;
-    text-transform: uppercase;
-    color: var(--gold);
-    opacity: 0.55;
-    margin-bottom: 0.2rem;
-    margin-top: 1rem;
-  }
-  .z-tag {
-    font-family: 'Crimson Pro', serif;
-    font-style: italic;
-    font-size: 14px;
-    color: var(--text-muted);
-    margin-bottom: 1.5rem;
-  }
-
-  .eye-wrap {
-    margin-bottom: 2rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  #eye-btn {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    border: 1.5px solid var(--gold);
-    background: transparent;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.4s;
-    box-shadow: 0 0 20px rgba(180,136,74,0.15);
-    position: relative;
-  }
-  #eye-btn::before {
-    content: '';
-    position: absolute;
-    inset: 8px;
-    border-radius: 50%;
-    border: 1px solid rgba(180,136,74,0.3);
-  }
-  #eye-pupil {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: var(--gold);
-    transition: all 0.3s;
-    opacity: 0.85;
-  }
-  #eye-btn.listening {
-    border-color: #fff;
-    box-shadow: 0 0 40px rgba(255,255,255,0.25), 0 0 80px rgba(180,136,74,0.15);
-    animation: eyeBreath 1.2s ease-in-out infinite;
-  }
-  #eye-btn.listening #eye-pupil {
-    background: #fff;
-    transform: scale(1.4);
-    opacity: 1;
-  }
-  #eye-btn.thinking {
-    animation: eyeThink 2s ease-in-out infinite;
-  }
-  @keyframes eyeBreath {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-  }
-  @keyframes eyeThink {
-    0%, 100% { box-shadow: 0 0 20px rgba(180,136,74,0.15); }
-    50% { box-shadow: 0 0 45px rgba(180,136,74,0.4); }
-  }
-
-  .eye-label {
-    font-family: 'Courier Prime', monospace;
-    font-size: 10px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    text-align: center;
-  }
-
-  #chat {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .msg {
-    padding: 1rem 0;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-    animation: msgIn 0.3s ease;
-  }
-  @keyframes msgIn {
-    from { opacity: 0; transform: translateY(5px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .msg.zoltar {
-    padding-left: 1rem;
-    border-left: 2px solid rgba(180,136,74,0.3);
-  }
-  .msg.zoltar .who {
-    font-family: 'Courier Prime', monospace;
-    font-size: 10px;
-    letter-spacing: 0.2em;
-    color: var(--gold);
-    text-transform: uppercase;
-    margin-bottom: 0.4rem;
-    opacity: 0.6;
-  }
-  .msg.zoltar .txt {
-    font-family: 'Crimson Pro', serif;
-    font-style: italic;
-    font-size: 20px;
-    line-height: 1.8;
-    color: var(--text);
-    white-space: pre-wrap;
-  }
-
-  .msg.user {
-    padding-left: 1rem;
-    border-left: 2px solid rgba(255,255,255,0.05);
-  }
-  .msg.user .who {
-    font-family: 'Courier Prime', monospace;
-    font-size: 10px;
-    letter-spacing: 0.2em;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    margin-bottom: 0.4rem;
-  }
-  .msg.user .txt {
-    font-size: 17px;
-    color: var(--text-soft);
-    line-height: 1.7;
-  }
-
-  .mem-tag {
-    display: inline-block;
-    font-family: 'Courier Prime', monospace;
-    font-size: 9px;
-    letter-spacing: 0.1em;
-    padding: 1px 6px;
-    border-radius: 2px;
-    margin-top: 0.5rem;
-    text-transform: uppercase;
-    border: 1px solid;
-  }
-  .mem-tag.v { border-color: rgba(180,136,74,0.3); color: rgba(180,136,74,0.5); }
-  .mem-tag.u { border-color: rgba(90,120,180,0.3); color: rgba(90,120,180,0.5); }
-  .mem-tag.t { border-color: rgba(160,80,60,0.3); color: rgba(160,80,60,0.5); }
-
-  #input-bar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(transparent, var(--bg) 30%);
-    padding: 1.5rem 1rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .input-row {
-    display: flex;
-    gap: 0.5rem;
-    width: 100%;
-    max-width: 680px;
-  }
-
-  #user-input {
-    flex: 1;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    color: var(--text);
-    font-family: 'Atkinson Hyperlegible', sans-serif;
-    font-size: 17px;
-    line-height: 1.6;
-    padding: 0.75rem 1rem;
-    resize: none;
-    outline: none;
-    min-height: 52px;
-    max-height: 140px;
-    transition: border-color 0.2s;
-  }
-  #user-input:focus { border-color: rgba(180,136,74,0.4); }
-  #user-input::placeholder { color: var(--text-muted); font-style: italic; font-size: 15px; }
-  #user-input:disabled { opacity: 0.4; }
-
-  #send-btn {
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    color: var(--gold);
-    font-family: 'Courier Prime', monospace;
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    padding: 0 1rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-transform: uppercase;
-    white-space: nowrap;
-    height: 52px;
-  }
-  #send-btn:hover { background: var(--gold-soft); }
-  #send-btn:disabled { opacity: 0.3; cursor: default; }
-
-  #status {
-    font-family: 'Courier Prime', monospace;
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    opacity: 0.5;
-  }
+/* Layout: mørk teaterpult i ét skærmbillede — lamperække (tryk = patch), sidevalg, 20 kanalknapper pr. side, master til højre */
+:root{
+  --bg:#0d0f12; --panel:#1a1e24; --key:#262b33; --key-edge:#3a414c;
+  --ink:#e8ebef; --dim:#7d8693; --warm:#ffd79a; --pink:#ff5fb4; --led:#4aa3ff; --red:#ff3b30; --alarm:#2a0606; --ok:#3ddc84;
+  --f-key:"Barlow Condensed","Arial Narrow",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+  color-scheme:dark;
+}
+html,body{height:100%}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-key);
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;overflow:hidden}
+.desk{box-sizing:border-box;height:100%;padding-block:2.2vh;padding-inline:max(16px,2.4vw);
+  display:grid;grid-template-rows:auto auto 1fr auto;gap:2vh}
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px}
+.brand{font-weight:700;letter-spacing:.18em;font-size:clamp(14px,1.8vw,22px);color:var(--dim);padding:8px 12px 8px 0;cursor:default}
+.screen{font-family:var(--f-mono);font-size:clamp(11px,1.4vw,18px);color:var(--led);background:#05080c;border:1px solid var(--key-edge);
+  border-radius:6px;padding:8px 14px;display:flex;gap:2em;white-space:nowrap;overflow:hidden;min-width:0}
+.screen span{color:var(--dim)}
+#msg{min-width:20ch}
+#msg.warn{color:var(--red)} #msg.ok{color:var(--ok)}
+.rig{background:var(--panel);border-radius:10px;padding:2vh 1.6vw;display:grid;
+  grid-template-columns:repeat(13,minmax(0,1fr));gap:1vw;align-items:end}
+.lamp{appearance:none;border:0;background:none;color:inherit;font:inherit;padding:0;
+  display:flex;flex-direction:column;align-items:center;gap:.6vh;cursor:pointer}
+.bulb{width:min(5.2vw,9vh);aspect-ratio:1;max-width:100%;border-radius:50%;background:#14171c;border:2px solid #2c323b;
+  transition:background .25s, box-shadow .25s}
+.lamp.on .bulb{background:var(--warm);box-shadow:0 0 1.6vw .2vw rgba(255,215,154,.55)}
+.lamp.pink .bulb{background:var(--pink);box-shadow:0 0 2vw .5vw rgba(255,95,180,.7)}
+.lamp.dead .bulb{background:repeating-linear-gradient(45deg,#1b1f25 0 6px,#23282f 6px 12px);border-style:dashed}
+.lamp b{font-size:clamp(16px,2.6vw,36px);color:var(--ink);font-weight:700;line-height:1}
+.lamp i{font-style:normal;font-family:var(--f-mono);font-size:clamp(9px,1.05vw,15px);color:var(--dim);white-space:nowrap}
+.lamp.pink i{color:var(--pink)}
+.lamp.pop .bulb{animation:lamppop .6s ease-out 1}
+@keyframes lamppop{0%{transform:scale(.6)}60%{transform:scale(1.25)}100%{transform:scale(1)}}
+.board{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2vw;min-height:0}
+.left{display:grid;grid-template-rows:auto 1fr;gap:1.4vh;min-height:0}
+.pager{display:flex;align-items:center;gap:1vw;font-family:var(--f-mono);font-size:clamp(12px,1.4vw,18px);color:var(--dim)}
+.pg{appearance:none;border:2px solid var(--key-edge);border-radius:8px;background:var(--key);color:var(--ink);
+  font-family:var(--f-key);font-weight:700;font-size:clamp(16px,2vw,26px);width:clamp(44px,6vw,80px);height:clamp(36px,5vh,52px)}
+#pageLbl b{color:var(--ink)}
+.keys{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));grid-auto-rows:1fr;gap:1.2vw;min-height:0}
+.key{appearance:none;border:2px solid var(--key-edge);border-radius:10px;background:var(--key);color:var(--ink);
+  font-family:var(--f-key);font-weight:700;font-size:clamp(20px,3.8vw,54px);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:.6vh;padding:0;min-height:44px;transition:transform .06s}
+.key::before{content:"";width:28%;max-width:34px;height:6px;border-radius:3px;background:#0f1216}
+.key.lit::before{background:var(--led);box-shadow:0 0 10px var(--led)}
+.key:active{transform:translateY(2px)}
+button:focus-visible{outline:3px solid var(--led);outline-offset:2px}
+.side{display:flex;flex-direction:column;gap:1.2vw;width:clamp(110px,14vw,200px)}
+.master{flex:1;appearance:none;border:2px solid var(--key-edge);border-radius:12px;background:var(--key);color:var(--ink);
+  font-family:var(--f-key);font-weight:700;letter-spacing:.12em;font-size:clamp(18px,2.6vw,36px);min-height:44px}
+.master.lit{border-color:var(--led);box-shadow:inset 0 0 0 2px var(--led)}
+.foot{display:flex;justify-content:space-between;align-items:center;font-family:var(--f-mono);font-size:clamp(10px,1.1vw,14px);color:var(--dim)}
+.flash{opacity:0;transition:opacity .4s}
+.flash.show{opacity:1}
+/* Patch-vindue */
+.sheet{position:fixed;inset:0;background:rgba(5,7,10,.78);display:flex;align-items:center;justify-content:center;z-index:5}
+.patch{background:var(--panel);border:2px solid var(--key-edge);border-radius:14px;padding:2.4vh 2.4vw;display:grid;gap:1.6vh;
+  width:min(620px,92vw);animation:popin .25s ease-out 1}
+.patch h2{margin:0;font-weight:700;letter-spacing:.1em;font-size:clamp(26px,3.6vw,48px);line-height:1.05}
+.patch .row{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:clamp(12px,1.4vw,18px);color:var(--dim)}
+.addr{font-family:var(--f-mono);font-size:clamp(48px,9vw,120px);text-align:center;color:var(--led);background:#05080c;border:1px solid var(--key-edge);
+  border-radius:8px;text-align:right;padding:.6vh 1.2vw;min-height:1.2em;letter-spacing:.06em}
+.pad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1vw}
+.pad button{appearance:none;border:2px solid var(--key-edge);border-radius:10px;background:var(--key);color:var(--ink);
+  font-family:var(--f-key);font-weight:700;font-size:clamp(22px,3.2vw,42px);min-height:48px;height:clamp(48px,7vh,80px)}
+.pad .go{background:var(--led);border-color:var(--led);color:#05080c}
+/* Pop-up beskeder – store nok til at kunne læses på film */
+.toast{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:8;pointer-events:auto;cursor:pointer;
+  font-family:var(--f-key);font-weight:700;letter-spacing:.08em;text-align:center;line-height:1.05;
+  font-size:clamp(34px,6.4vw,92px);padding:2.4vh 3vw;border-radius:16px;background:#0b0e12;border:4px solid var(--led);color:var(--ink);
+  box-shadow:0 20px 60px rgba(0,0,0,.6);max-width:88vw;animation:popin .28s cubic-bezier(.2,1.4,.4,1) 1}
+.toast small{display:block;font-family:var(--f-mono);font-weight:500;letter-spacing:0;font-size:.36em;color:var(--dim);margin-top:.5em}
+.toast.warn{border-color:var(--red);color:#ffd9d6}
+.toast.ok{border-color:var(--ok);color:#d6ffe6}
+.toast.pinkt{border-color:var(--pink);color:#ffd6ec}
+@keyframes popin{from{transform:translate(-50%,-50%) scale(.6);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+.patch{position:relative}
+/* Advarsel, der overtager skærmen */
+.alarm{position:fixed;inset:0;background:var(--alarm);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2vh;z-index:10;border:1.2vw solid var(--red);box-sizing:border-box;animation:pulse .9s ease-in-out infinite alternate}
+@keyframes pulse{from{border-color:var(--red)}to{border-color:#5a0a08}}
+.alarm .big{font-family:var(--f-key);font-weight:700;font-size:clamp(90px,24vw,320px);line-height:.85;color:var(--red)}
+.alarm .t1{font-family:var(--f-key);font-weight:700;letter-spacing:.14em;font-size:clamp(24px,4.6vw,64px);text-align:center}
+.alarm .t2{font-family:var(--f-mono);font-size:clamp(12px,1.8vw,24px);color:#f3b3ae}
+@media (max-width:640px){
+  .rig{grid-template-columns:repeat(7,minmax(0,1fr))}
+  .keys{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .board{grid-template-columns:1fr}
+  .side{width:auto;flex-direction:row}
+  body{overflow:auto}
+}
+@media (prefers-reduced-motion:reduce){.alarm{animation:none}}
 </style>
+
 </head>
 <body>
+<div class="desk">
+  <div class="top">
+    <div class="brand" id="brand">BAGSCENEN · LYS</div>
+    <div class="screen"><div><span>SCENE</span> GENERALPRØVE</div><div id="msg"></div><div><span>LAMPER</span> <b id="count">0</b>/13</div></div>
+  </div>
 
-<div id="group-screen">
-  <div class="group-title">Vælg jeres gruppe</div>
-  <div class="group-grid">
-    <button class="group-btn" onclick="startGroup('etik1')"><span class="gl">Etik · Sag 04</span>Grise i dansk landbrug</button>
-    <button class="group-btn" onclick="startGroup('etik2')"><span class="gl">Etik · Sag 04</span>Høns og æg</button>
-    <button class="group-btn" onclick="startGroup('historie1')"><span class="gl">Historie · Sag 01</span>Traktorens ankomst</button>
-    <button class="group-btn" onclick="startGroup('historie2')"><span class="gl">Historie · Sag 01</span>Andelsbevægelsen</button>
-    <button class="group-btn" onclick="startGroup('historie3')"><span class="gl">Historie · Sag 01</span>Landsby-samfundets opløsning</button>
-    <button class="group-btn" onclick="startGroup('historie4')"><span class="gl">Historie · Sag 01</span>Stordriftens fremvækst</button>
-    <button class="group-btn" onclick="startGroup('miljoe')"><span class="gl">Miljø · Sag 03</span>Sprøjtemidler og natur</button>
-    <button class="group-btn" onclick="startGroup('samfund1')"><span class="gl">Samfund · Sag 06</span>Bacon til England</button>
-    <button class="group-btn" onclick="startGroup('samfund2')"><span class="gl">Samfund · Sag 06</span>Svinekød til Kina</button>
-    <button class="group-btn" onclick="startGroup('fremtid')"><span class="gl">Fremtid · Sag 05</span>Hvad kommer efter?</button>
+  <div class="rig" id="rig" aria-label="Lamper – tryk for at tildele kanal"></div>
+
+  <div class="board">
+    <div class="left">
+      <div class="pager">
+        <button class="pg" id="prev" type="button" aria-label="Forrige side">◀</button>
+        <span id="pageLbl"></span>
+        <button class="pg" id="next" type="button" aria-label="Næste side">▶</button>
+      </div>
+      <div class="keys" id="keys"></div>
+    </div>
+    <div class="side">
+      <button class="master" id="master" type="button">MASTER</button>
+      <button class="master" id="black" type="button">SLUK</button>
+    </div>
+  </div>
+
+  <div class="foot"><span>512 kanaler · tryk på en lampe for at tildele kanal</span><span class="flash" id="flash">● NULSTILLET</span></div>
+</div>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="patch" role="dialog" aria-labelledby="pTitle">
+    <h2 id="pTitle">LAMPE 13 · TAST KODE</h2>
+    <div class="row"><span>LED PAR · RGB</span><span id="pState">IKKE TILDELT</span></div>
+    <div class="addr" id="addr"></div>
+    <div class="pad" id="pad">
+      <button type="button">1</button><button type="button">2</button><button type="button">3</button>
+      <button type="button">4</button><button type="button">5</button><button type="button">6</button>
+      <button type="button">7</button><button type="button">8</button><button type="button">9</button>
+      <button type="button" data-k="del">SLET</button><button type="button">0</button><button type="button" data-k="ok" class="go">OK</button>
+    </div>
+    <button type="button" class="pg" id="close" style="width:auto;padding-inline:1.4em;justify-self:start">LUK</button>
   </div>
 </div>
 
-<div id="app">
-  <div class="z-name">Z O L T A R</div>
-  <div class="z-tag">En ånd på lånt tid</div>
+<div class="toast" id="toast" hidden></div>
 
-  <div class="eye-wrap">
-    <button id="eye-btn" onclick="toggleMic()" title="Tryk og tal">
-      <div id="eye-pupil"></div>
-    </button>
-    <div class="eye-label" id="eye-label">Tryk for at tale</div>
-  </div>
-
-  <div id="chat"></div>
-
-  <div id="input-bar">
-    <div class="input-row">
-      <textarea id="user-input"
-        placeholder="Skriv til Zoltar..."
-        rows="1"
-        disabled
-        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendText()}"></textarea>
-      <button id="send-btn" onclick="sendText()" disabled>Send</button>
-    </div>
-    <div id="status">Vælg gruppe</div>
-  </div>
+<div class="alarm" id="alarm" hidden>
+  <div class="big" id="aBig">13</div>
+  <div class="t1" id="aT1">ADRESSE 13 ER BLOKERET</div>
+  <div class="t2" id="aT2">Kan ikke tildeles</div>
 </div>
 
 <script>
-const BACKEND = 'https://script.google.com/macros/s/AKfycbxe7UCZM6WMjaTW0btSDAXcjxuSNZuJ9DwJlHY_xBHrYHzykZibVeluLxb0A14wL21a/exec';
+(function(){
+  // Lampe 1–12 ligger på kanal 1–12 og virker. Lampe 13 har ingen kanal og lyser lyserødt, så snart pulten starter. Kanal 13 er blokeret.
+  // Lampe 13 kan tildeles en hvilken som helst ledig kanal (14–512) – bare ikke 13.
+  var LAMPS = 13, PER = 20, CHANNELS = 512, PAGES = Math.ceil(CHANNELS / PER), PINK = 12;
+  var on, page, patch13, entry;
+  var rig = document.getElementById("rig"), keys = document.getElementById("keys"), msg = document.getElementById("msg");
+  var lamps = [], btns = [];
 
-let history = [];
-let currentGroup = null;
-let recognition = null;
-let isListening = false;
-
-function initSpeech() {
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) {
-    document.getElementById('eye-label').textContent = 'Tale kun i Chrome';
-    return;
+  for (var i = 1; i <= LAMPS; i++) {
+    var l = document.createElement("button"); l.type = "button"; l.className = "lamp"; l.dataset.lamp = i;
+    l.innerHTML = '<div class="bulb"></div><b>' + i + '</b><i></i>';
+    rig.appendChild(l); lamps.push(l);
   }
-  recognition = new SR();
-  recognition.lang = 'da-DK';
-  recognition.continuous = false;
-  recognition.interimResults = false;
-  recognition.onresult = function(e) {
-    const text = e.results[0][0].transcript;
-    stopListening();
-    sendMessage(text);
-  };
-  recognition.onerror = function() { stopListening(); };
-  recognition.onend = function() { stopListening(); };
-}
-
-function toggleMic() {
-  if (!currentGroup) return;
-  isListening ? stopListening() : startListening();
-}
-
-function startListening() {
-  if (!recognition) return;
-  try {
-    recognition.start();
-    isListening = true;
-    document.getElementById('eye-btn').classList.add('listening');
-    document.getElementById('eye-label').textContent = 'Lytter...';
-    document.getElementById('status').textContent = 'Lytter';
-  } catch(e) {}
-}
-
-function stopListening() {
-  if (!recognition) return;
-  isListening = false;
-  try { recognition.stop(); } catch(e) {}
-  document.getElementById('eye-btn').classList.remove('listening');
-  document.getElementById('eye-label').textContent = 'Tryk for at tale';
-}
-
-function zoltarSpeak(text) {
-  if (!window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'da-DK';
-  u.rate = 0.87;
-  u.pitch = 0.8;
-  const voices = window.speechSynthesis.getVoices();
-  const da = voices.find(v => v.lang.startsWith('da'));
-  if (da) u.voice = da;
-  window.speechSynthesis.speak(u);
-}
-
-async function startGroup(groupKey) {
-  currentGroup = groupKey;
-  document.getElementById('group-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'flex';
-  document.getElementById('status').textContent = 'Zoltar vågner...';
-  document.getElementById('eye-btn').classList.add('thinking');
-
-  const opening = 'Hallo!? Er der nogen?';
-
-  document.getElementById('eye-btn').classList.remove('thinking');
-  addMsg('zoltar', opening, 'u');
-  zoltarSpeak(opening);
-  history.push({ role: 'model', parts: [{ text: opening }] });
-  document.getElementById('user-input').disabled = false;
-  document.getElementById('send-btn').disabled = false;
-  document.getElementById('status').textContent = 'Tryk øjet for at tale · eller skriv';
-}
-
-function addMsg(role, text, feel) {
-  const chat = document.getElementById('chat');
-  const div = document.createElement('div');
-  div.className = `msg ${role}`;
-
-  const who = document.createElement('div');
-  who.className = 'who';
-  who.textContent = role === 'zoltar' ? 'Zoltar' : 'I';
-  div.appendChild(who);
-
-  const txt = document.createElement('div');
-  txt.className = 'txt';
-  txt.textContent = text;
-  div.appendChild(txt);
-
-  if (role === 'zoltar' && feel) {
-    const tag = document.createElement('div');
-    tag.className = `mem-tag ${feel}`;
-    tag.textContent = feel === 'v' ? '↑ varmt' : feel === 't' ? '↓ tungt' : '· uklart';
-    div.appendChild(tag);
+  for (var k = 0; k < PER; k++) {
+    var b = document.createElement("button"); b.type = "button"; b.className = "key";
+    keys.appendChild(b); btns.push(b);
   }
 
-  chat.appendChild(div);
-  div.scrollIntoView({ behavior: 'smooth', block: 'end' });
-}
+  function works13(){ return patch13 >= 14; }
+  function lampFor(ch){
+    if (ch >= 1 && ch <= 12) return ch - 1;
+    if (ch === patch13 && works13()) return PINK;
+    return -1;
+  }
+  var msgT = null;
+  var toast = document.getElementById("toast");
+  function say(t, cls, sub){
+    msg.textContent = t; msg.className = cls === "pinkt" ? "ok" : (cls || "");
+    toast.className = "toast " + (cls || "");
+    toast.innerHTML = t + (sub ? "<small>" + sub + "</small>" : "");
+    toast.hidden = false; void toast.offsetWidth; toast.style.animation = "none"; void toast.offsetWidth; toast.style.animation = "";
+    clearTimeout(msgT); msgT = setTimeout(function(){ msg.textContent = ""; toast.hidden = true; }, 2200);
+  }
+  // Et tryk på en pop-up lukker den – og når ikke igennem til knapperne bagved.
+  ["pointerdown","click"].forEach(function(ev){
+    toast.addEventListener(ev, function(e){ e.preventDefault(); e.stopPropagation(); if (ev === "click") { clearTimeout(msgT); toast.hidden = true; } });
+  });
+  ["pointerdown"].forEach(function(ev){
+    document.getElementById("alarm").addEventListener(ev, function(e){ e.preventDefault(); e.stopPropagation(); });
+  });
+  function popLamp(){ var l = lamps[PINK]; l.classList.remove("pop"); void l.offsetWidth; l.classList.add("pop"); }
+  function render(){
+    var c = 0;
+    for (var i = 0; i < LAMPS; i++) {
+      var x = i === PINK ? (!works13() || !!on[PINK]) : !!on[i];   // uden kanal lyser lampe 13 altid
+      lamps[i].classList.toggle("on", x && i !== PINK);
+      lamps[i].classList.toggle("pink", x && i === PINK);
+      lamps[i].classList.remove("dead");
+      lamps[i].querySelector("i").textContent = i === PINK ? (patch13 ? "KANAL " + patch13 : "KANAL –") : "KANAL " + (i + 1);
+      if (x) c++;
+    }
+    for (var k = 0; k < PER; k++) {
+      var ch = page * PER + k + 1;
+      btns[k].textContent = ch; btns[k].dataset.ch = ch; btns[k].hidden = ch > CHANNELS;
+      var li = lampFor(ch);
+      btns[k].classList.toggle("lit", li >= 0 && !!on[li]);
+    }
+    document.getElementById("pageLbl").innerHTML = "SIDE <b>" + (page + 1) + "</b>/" + PAGES + " · KANAL " + (page * PER + 1) + "–" + Math.min(CHANNELS, (page + 1) * PER);
+    document.getElementById("count").textContent = c;
+    document.getElementById("master").classList.toggle("lit", c === LAMPS);
+    document.getElementById("pState").textContent = works13() ? "KANAL " + patch13 : "IKKE TILDELT";
+    document.getElementById("pState").style.color = works13() ? "var(--ok)" : "var(--red)";
+  }
+  function reset(){
+    on = []; page = 0; patch13 = 0; entry = ""; unlocked = false;
+    msg.textContent = ""; toast.hidden = true; document.getElementById("alarm").hidden = true; document.getElementById("sheet").hidden = true;
+    render();
+    var f = document.getElementById("flash"); f.classList.add("show");
+    setTimeout(function(){ f.classList.remove("show"); }, 1500);
+  }
 
-function sendText() {
-  const input = document.getElementById('user-input');
-  const text = input.value.trim();
-  if (!text) return;
-  input.value = '';
-  input.style.height = 'auto';
-  sendMessage(text);
-}
+  var alarmT = null;
+  function alarm(big, t1, t2){
+    document.getElementById("aBig").textContent = big;
+    document.getElementById("aT1").textContent = t1;
+    document.getElementById("aT2").textContent = t2;
+    var a = document.getElementById("alarm"); a.hidden = false;
+    clearTimeout(alarmT); alarmT = setTimeout(function(){ a.hidden = true; }, 2800);
+  }
+  document.getElementById("alarm").addEventListener("click", function(){ this.hidden = true; });
 
-async function sendMessage(text) {
-  if (!text || !currentGroup) return;
+  // Kanalknapper
+  keys.addEventListener("click", function(e){
+    var b = e.target.closest(".key"); if (!b) return;
+    var ch = +b.dataset.ch, li = lampFor(ch);
+    if (ch === 13) { alarm("13", "KANAL 13 ER BLOKERET", "Kan ikke bruges"); return; }
+    if (li < 0) { say("KANAL " + ch, "warn", "ingen lampe"); return; }
+    on[li] = !on[li]; render();
+  });
+  document.getElementById("prev").addEventListener("click", function(){ page = (page + PAGES - 1) % PAGES; render(); });
+  document.getElementById("next").addEventListener("click", function(){ page = (page + 1) % PAGES; render(); });
+  document.getElementById("master").addEventListener("click", function(){
+    for (var i = 0; i < LAMPS; i++) on[i] = true;
+    if (!works13()) say("LAMPE 13", "warn", "har ingen kanal");
+    render();
+  });
+  document.getElementById("black").addEventListener("click", function(){
+    on = []; if (!works13()) say("LAMPE 13 SVARER IKKE", "warn"); render();
+  });
 
-  addMsg('user', text);
-  history.push({ role: 'user', parts: [{ text }] });
-
-  document.getElementById('eye-btn').classList.add('thinking');
-  document.getElementById('send-btn').disabled = true;
-  document.getElementById('user-input').disabled = true;
-  document.getElementById('status').textContent = 'Zoltar tænker...';
-
-  try {
-    const res = await fetch(BACKEND, {
-      method: 'POST',
-      body: JSON.stringify({
-        action: 'talk',
-        message: text,
-        history: JSON.stringify(history.slice(-12)),
-        group: currentGroup
-      })
+  // Patch – lampe 13 er låst med en kode, før den kan få en kanal
+  // Standardkode = lampenummer to gange (0101, 0202 …). For lampe 13 ville det være 1313 – men 13 er blokeret.
+  var CODE = "1414", unlocked = false;
+  var sheet = document.getElementById("sheet"), addr = document.getElementById("addr"), title = document.getElementById("pTitle");
+  function showEntry(){
+    if (!unlocked) { addr.textContent = entry ? entry.replace(/./g, "●") + "○○○○".slice(entry.length) : "○○○○"; return; }
+    addr.textContent = entry || (patch13 ? patch13 : "–");
+  }
+  function openSheet(){
+    entry = "";
+    title.textContent = unlocked ? "LAMPE 13 · VÆLG KANAL" : "LAMPE 13 · TAST KODE";
+    showEntry(); render(); sheet.hidden = false;
+  }
+  lamps.forEach(function(l){
+    l.addEventListener("click", function(){
+      var n = +l.dataset.lamp;
+      if (n !== 13) { say("LAMPE " + n, "", "kanal " + n + " · kode " + ("0" + n).slice(-2) + ("0" + n).slice(-2)); return; }
+      openSheet();
     });
+  });
+  document.getElementById("close").addEventListener("click", function(){ sheet.hidden = true; });
+  document.getElementById("pad").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    var k = b.dataset.k;
+    if (k === "del") { entry = entry.slice(0, -1); showEntry(); return; }
+    if (!unlocked) {
+      if (k !== "ok") { if (entry.length < 4) entry += b.textContent; showEntry(); }
+      if (k === "ok" || entry.length === 4) {
+        var c = entry; entry = "";
+        if (c === CODE) { unlocked = true; openSheet(); say("LÅST OP", "ok", "vælg en kanal"); return; }
+        if (c.indexOf("13") >= 0) { alarm("13", "13 ER BLOKERET", "Kan ikke bruges"); showEntry(); return; }
+        if (c.length) say("FORKERT KODE", "warn", c);
+        showEntry();
+      }
+      return;
+    }
+    if (k !== "ok") { if (entry.length < 3) entry += b.textContent; showEntry(); return; }
+    var n = parseInt(entry, 10); entry = "";
+    if (!n || n > CHANNELS) { say("UGYLDIG KANAL", "warn"); showEntry(); return; }
+    if (n === 13) { alarm("13", "KANAL 13 ER BLOKERET", "Kan ikke tildeles"); showEntry(); return; }
+    if (n <= 12) { say("KANAL " + n + " ER OPTAGET", "warn", "bruges af lampe " + n); showEntry(); return; }
+    patch13 = n; on[PINK] = true; sheet.hidden = true; say("KANAL " + n, "pinkt", "lampe 13 svarer"); popLamp();
+    showEntry(); render();
+  });
 
-    const data = await res.json();
-    document.getElementById('eye-btn').classList.remove('thinking');
+  // Skjult nulstilling til næste take: tryk tre gange hurtigt på "BAGSCENEN · LYS" (eller tast R).
+  var taps = 0, timer = null;
+  document.getElementById("brand").addEventListener("click", function(){
+    taps++; clearTimeout(timer); timer = setTimeout(function(){ taps = 0; }, 600);
+    if (taps >= 3) { taps = 0; reset(); }
+  });
+  document.addEventListener("keydown", function(e){ if (e.key === "r" || e.key === "R") reset(); });
 
-    const feel = data.valence > 0.6 ? 'v' : data.valence < 0.2 ? 't' : 'u';
-    addMsg('zoltar', data.reply, feel);
-    zoltarSpeak(data.reply);
-    history.push({ role: 'model', parts: [{ text: data.reply }] });
+  document.addEventListener("pointerdown", function once(){
+    document.removeEventListener("pointerdown", once);
+    try { navigator.wakeLock && navigator.wakeLock.request("screen").catch(function(){}); } catch(e){}
+  });
 
-  } catch(e) {
-    document.getElementById('eye-btn').classList.remove('thinking');
-    addMsg('zoltar', '...jeg kan ikke nå det lige nu.', 't');
-    console.error(e);
-  }
-
-  document.getElementById('send-btn').disabled = false;
-  document.getElementById('user-input').disabled = false;
-  document.getElementById('status').textContent = 'Tryk øjet for at tale · eller skriv';
-}
-
-document.getElementById('user-input').addEventListener('paste', function(e) {
-  e.preventDefault();
-});
-
-document.getElementById('user-input').addEventListener('input', function() {
-  this.style.height = 'auto';
-  this.style.height = Math.min(this.scrollHeight, 140) + 'px';
-});
-
-window.speechSynthesis.onvoiceschanged = function() {};
-initSpeech();
+  reset();
+})();
 </script>
+
 </body>
 </html>
