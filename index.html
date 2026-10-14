@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
 <title>Lyspult Bagscenen</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=IBM+Plex+Mono:wght@500&display=swap">
@@ -19,6 +20,8 @@
 }
 html,body{height:100%}
 [hidden]{display:none!important}
+@supports (height:100dvh){.desk{height:100dvh}}
+.screen{cursor:pointer}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-key);
   -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;overflow:hidden}
 .desk{box-sizing:border-box;height:100%;padding-block:2.2vh;padding-inline:max(16px,2.4vw);
@@ -313,6 +316,16 @@ button:focus-visible{outline:3px solid var(--led);outline-offset:2px}
   document.addEventListener("pointerdown", function once(){
     document.removeEventListener("pointerdown", once);
     try { navigator.wakeLock && navigator.wakeLock.request("screen").catch(function(){}); } catch(e){}
+  });
+
+  // Fuld skærm: tryk på displayet øverst til højre.
+  document.querySelector(".screen").addEventListener("click", function(){
+    var d = document.documentElement, fs = document.fullscreenElement || document.webkitFullscreenElement;
+    try {
+      if (fs) { (document.exitFullscreen || document.webkitExitFullscreen).call(document); }
+      else if (d.requestFullscreen) { d.requestFullscreen().catch(function(){}); }
+      else if (d.webkitRequestFullscreen) { d.webkitRequestFullscreen(); }
+    } catch(e){}
   });
 
   reset();
